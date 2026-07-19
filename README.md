@@ -41,30 +41,30 @@ A production-grade, end-to-end Large Language Model project demonstrating **data
 
 ```mermaid
 flowchart TD
-    subgraph Data_Engineering ["Phase 1: Dataset Pipeline"]
-        A1["Bangla-Instruct (342K)"] --> A3["Support Intent Filter"]
-        A2["Aya Dataset (Bengali)"] --> A3
-        A3 --> A4["NFC Normalization & Dedup"]
-        A4 --> A5["Train / Val / Test Split (289K total)"]
+    subgraph DataPrep [Phase 1: Dataset Pipeline]
+        A1[Bangla-Instruct 342K] --> A3[Support Intent Filter]
+        A2[Aya Dataset Bengali] --> A3
+        A3 --> A4[NFC Normalization & Dedup]
+        A4 --> A5[Train / Val / Test Split 289K]
     end
 
-    subgraph Fine_Tuning ["Phase 2: QLoRA Fine-Tuning"]
-        A5 --> B1["Qwen3-8B Base Model"]
-        B1 --> B2["Unsloth + SFTTrainer (4-bit NF4)"]
-        B2 --> B3["Merged Safetensors / GGUF"]
+    subgraph Training [Phase 2: QLoRA Fine-Tuning]
+        A5 --> B1[Qwen3-8B Base Model]
+        B1 --> B2[Unsloth + SFTTrainer 4-bit NF4]
+        B2 --> B3[Merged Model Safetensors / GGUF]
     end
 
-    subgraph Evaluation ["Phase 3: Multi-Metric Evaluation"]
-        B3 --> C1["BLEU / ROUGE-L"]
-        B3 --> C2["BERTScore (bangla-bert-base)"]
-        B3 --> C3["LLM-as-a-Judge (1-5 Scale)"]
+    subgraph Eval [Phase 3: Multi-Metric Evaluation]
+        B3 --> C1[BLEU / ROUGE-L]
+        B3 --> C2[BERTScore bangla-bert-base]
+        B3 --> C3[LLM-as-a-Judge 1-5 Scale]
     end
 
-    subgraph Serving ["Phase 5-6: RAG, Agent & UI Serving"]
-        B3 --> D1["FastAPI SSE Server"]
-        D2["ChromaDB Policy Vector Store"] --> D1
-        D3["SQLite Order DB Tools"] --> D1
-        D1 --> D4["Glassmorphic React UI"]
+    subgraph Serving [Phase 5-6: RAG, Agent & UI Serving]
+        B3 --> D1[FastAPI SSE Server]
+        D2[ChromaDB Policy Vector Store] --> D1
+        D3[SQLite Order DB Tools] --> D1
+        D1 --> D4[Glassmorphic React UI]
     end
 ```
 
@@ -72,17 +72,17 @@ flowchart TD
 
 ```mermaid
 graph LR
-    UserQuery["User Bangla Query"] --> Router{"System Mode"}
+    UserQuery[User Query] --> Router{System Mode}
     
-    Router -- "System A: Base + RAG" --> BaseLLM["Base Qwen3-8B"]
-    ChromaDB["ChromaDB Vector Store"] --> BaseLLM
+    Router -->|System A: Base + RAG| BaseLLM[Base Qwen3-8B]
+    ChromaDB[ChromaDB Vector Store] --> BaseLLM
     
-    Router -- "System B: Fine-Tuned (No RAG)" --> FTModel["Fine-Tuned BanglaSupport-LLM"]
+    Router -->|System B: Fine-Tuned| FTModel[Fine-Tuned BanglaSupport-LLM]
     
-    Router -- "System C: Fine-Tuned + RAG" --> FTRAG["Fine-Tuned BanglaSupport-LLM"]
+    Router -->|System C: Fine-Tuned + RAG| FTRAG[Fine-Tuned BanglaSupport-LLM]
     ChromaDB --> FTRAG
     
-    BaseLLM --> EvalComp["Latency / Hallucination / BLEU Comparison"]
+    BaseLLM --> EvalComp[Latency / Hallucination / BLEU Metrics]
     FTModel --> EvalComp
     FTRAG --> EvalComp
 ```
@@ -92,18 +92,18 @@ graph LR
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Customer as 👤 Customer (Bangla)
-    participant API as ⚡ FastAPI Backend
-    participant Agent as 🤖 Intent Detector
-    participant DB as 🗄️ SQLite Order DB
-    participant LLM as 🧠 Fine-Tuned Qwen3
+    actor Customer as Customer
+    participant API as FastAPI Backend
+    participant Agent as Intent Detector
+    participant DB as SQLite Order DB
+    participant LLM as Fine-Tuned Model
 
-    Customer->>API: "আমার অর্ডার BD1001 কোথায়?"
-    API->>Agent: Parse intent & extract entity (order_id="BD1001")
-    Agent->>DB: get_order_status("BD1001")
-    DB-->>Agent: {"status": "ঢাকার হাবে পৌঁছায়েছে", "delivery": "2026-07-21"}
-    Agent->>LLM: Formulate contextual response prompt
-    LLM-->>API: "আপনার অর্ডারটি ঢাকার হাবে রয়েছে..."
+    Customer->>API: Order BD1001 status request
+    API->>Agent: Parse intent & extract order_id=BD1001
+    Agent->>DB: get_order_status(BD1001)
+    DB-->>Agent: Status: Hub, Delivery: 2026-07-21
+    Agent->>LLM: Formulate contextual Bangla prompt
+    LLM-->>API: Streamed response text
     API-->>Customer: Real-time SSE Streamed Answer
 ```
 
