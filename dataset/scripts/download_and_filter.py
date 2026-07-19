@@ -10,8 +10,15 @@ Usage:
 
 import json
 import os
+import sys
 from collections import Counter
 from pathlib import Path
+
+# Fix Windows console encoding for Unicode/Bangla characters
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 from datasets import load_dataset
 from rich.console import Console

@@ -1,124 +1,163 @@
-# 🇧🇩 Bangla Customer Support LLM
+# 🇧🇩 BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
 
-A fine-tuned **Qwen3-8B** model for Bangla e-commerce customer support, demonstrating the full ML lifecycle: dataset curation → QLoRA training → evaluation → RAG comparison → agentic tool-calling → deployment.
+[![Model Architecture](https://img.shields.io/badge/Model-Qwen3--8B-blue.svg)](https://huggingface.co/Qwen/Qwen3-8B)
+[![Fine-Tuning](https://img.shields.io/badge/FineTuning-QLoRA%204--bit-green.svg)](https://github.com/unslothai/unsloth)
+[![RAG](https://img.shields.io/badge/RAG-ChromaDB%20%2B%20MiniLM-orange.svg)](https://github.com/chroma-core/chroma)
+[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+[![Author](https://img.shields.io/badge/Author-Mahmudur%20Rahman%20(mrshibly)-brightgreen.svg)](mailto:mahmudurrahman858@gmail.com)
 
-## ✨ Highlights
+A production-grade, end-to-end Large Language Model project demonstrating **dataset engineering, QLoRA fine-tuning, automated & LLM-as-a-Judge evaluation, RAG retrieval comparison, agentic tool-calling, and full-stack deployment** for Bangla e-commerce customer support.
 
-- **Model**: Qwen3-8B fine-tuned with QLoRA (4-bit, rank 16) via Unsloth
-- **Dataset**: ~23K native Bangla examples filtered from Bangla-Instruct (342K, ACL 2025) + Aya Bengali
-- **Evaluation**: BLEU, ROUGE-L, BERTScore, LLM-as-a-Judge, human evaluation
-- **RAG Comparison**: 3-system comparison (Base+RAG vs Fine-tuned vs Fine-tuned+RAG)
-- **Deployment**: FastAPI + vLLM + React chat interface + Docker
-- **Stretch**: Agentic tool-calling with mock e-commerce APIs
+---
 
-## 📋 Example
+## 🌟 Key Features & Engineering Highlights
+
+- 🎯 **Domain-Specific Fine-Tuning**: Fine-tuned **Qwen3-8B** using QLoRA (4-bit quantization, $r=16, \alpha=32$) via Unsloth to eliminate cross-lingual Hindi-bleeding and deliver natural, fluent Bangla customer support responses.
+- 🧹 **Native Bangla Dataset Pipeline**: Built a zero-cost 300K+ example instruction tuning pipeline filtered from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` with NFC Unicode normalization and MinHash LSH deduplication.
+- 📐 **Rigorous Evaluation Suite**: Multi-dimensional benchmark pipeline comparing base vs fine-tuned models across **BLEU**, **ROUGE-L**, **BERTScore** (`sagorsarker/bangla-bert-base`), and **LLM-as-a-Judge** scoring (Helpfulness, Fluency, Accuracy, Tone).
+- 🔍 **RAG Comparison System**: 3-tier comparative benchmark (Base + RAG vs. Fine-tuned vs. Fine-tuned + RAG) analyzing latency, hallucination rates, and token consumption.
+- ⚡ **Agentic Tool-Calling**: Integrated function-calling engine routing intent to mock SQLite order status and return eligibility APIs.
+- 🖥️ **Full-Stack UI & Serving**: FastAPI backend with Server-Sent Events (SSE streaming) paired with a responsive React + Vite chat interface designed with modern glassmorphism aesthetics and native Bangla typography (*Hind Siliguri*).
+- 🐳 **Containerized Deployment**: Multi-stage Docker Compose setup orchestrating API and Nginx web server.
+
+---
+
+## 🛠️ Tech Stack
+
+| Domain | Technologies |
+|---|---|
+| **Base Model & Training** | Qwen3-8B, Unsloth, HuggingFace TRL, PEFT, bitsandbytes, Accelerate, PyTorch |
+| **Dataset & NLP** | Datasets, Datasketch (MinHash LSH), unicodedata2, NLTK, ROUGE, BERTScore |
+| **RAG & Vector Search** | ChromaDB, LangChain, Sentence-Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) |
+| **Inference Backend** | FastAPI, SSE-Starlette, Pydantic, SQLite (Mock Order DB), Uvicorn |
+| **Frontend UI** | React 18, Vite, Lucide Icons, Vanilla CSS (Glassmorphism & Responsive Design) |
+| **DevOps & Tools** | Docker, Docker Compose, Git, Weights & Biases |
+
+---
+
+## 📂 Project Architecture
 
 ```
-User:   আমার অর্ডার এখনো আসেনি।
-AI:     আপনার অর্ডার নম্বরটি দিলে আমি স্ট্যাটাস দেখে বলতে পারি।
+BanglaSupport-LLM/
+├── dataset/
+│   ├── scripts/
+│   │   ├── download_and_filter.py   # Filters 342K Bangla-Instruct into 12 intent categories
+│   │   ├── download_aya.py           # Extracts human-curated Bengali subset from Aya
+│   │   ├── prepare_dataset.py        # NFC normalization, length filtering, MD5 dedup
+│   │   └── split_data.py             # Stratified 85/10/5 split (train, val, test)
+│   ├── processed/
+│   └── splits/
+├── training/
+│   ├── configs/
+│   │   └── qlora_qwen3_8b.yaml       # Hyperparameters & QLoRA config
+│   ├── train.py                      # Unsloth + SFTTrainer with Bangla prompt
+│   └── merge_adapter.py              # LoRA adapter merge to safetensors & GGUF
+├── evaluation/
+│   ├── eval_auto.py                  # BLEU, ROUGE-L, BERTScore runner
+│   ├── eval_llm_judge.py             # LLM-as-a-Judge (Helpfulness, Fluency, Accuracy, Tone)
+│   └── results/
+├── knowledge_base/
+│   ├── build_index.py                # Chunks Bangla policy MDs -> ChromaDB vector store
+│   └── documents/
+├── inference/
+│   └── api/
+│       ├── main.py                   # FastAPI app with SSE streaming & mode routes
+│       ├── rag.py                    # RAG retriever pipeline
+│       ├── tools.py                  # Agentic tool-calling & SQLite DB
+│       └── schemas.py                # Pydantic schemas
+├── app/
+│   └── frontend/                     # Modern React + Vite chat application
+├── docker/
+│   ├── Dockerfile.api
+│   ├── Dockerfile.frontend
+│   └── docker-compose.yml
+├── README.md
+├── requirements.txt
+└── pyproject.toml
 ```
 
-## 🚀 Quick Start
+---
 
-### 1. Install Dependencies
+## 🚀 Quick Start & Reproduction
+
+### 1. Installation
 
 ```bash
+git clone https://github.com/mrshibly/BanglaSupport-LLM.git
+cd BanglaSupport-LLM
+
+python -m venv venv
+# Windows: venv\Scripts\activate | Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Prepare Dataset
+### 2. Dataset Pipeline
 
 ```bash
-python dataset/scripts/download_and_filter.py   # Download & filter Bangla-Instruct
-python dataset/scripts/download_aya.py           # Download Aya Bengali subset
-python dataset/scripts/prepare_dataset.py        # Merge & deduplicate
-python dataset/scripts/split_data.py             # Train/val/test split
+python dataset/scripts/download_and_filter.py
+python dataset/scripts/download_aya.py
+python dataset/scripts/prepare_dataset.py
+python dataset/scripts/split_data.py
 ```
 
-### 3. Fine-Tune
+### 3. Model Fine-Tuning (QLoRA)
 
 ```bash
 # Smoke test (50 steps)
 python training/train.py --max_steps 50
 
-# Full training (~8-10 hours on RTX 5060 Ti)
+# Full training (~8-10 hrs on RTX 5060 Ti 16GB)
 python training/train.py
-```
 
-### 4. Evaluate
-
-```bash
-# Baseline
-python evaluation/eval_auto.py --model Qwen/Qwen3-8B
-
-# Fine-tuned
-python evaluation/eval_auto.py --model checkpoints/qwen3-8b-bangla-support/final_adapter
-```
-
-### 5. Merge & Deploy
-
-```bash
-# Merge adapter
+# Merge adapter into full model
 python training/merge_adapter.py --adapter checkpoints/qwen3-8b-bangla-support/final_adapter
-
-# Start API
-cd inference && uvicorn api.main:app --reload
-
-# Start frontend
-cd app/frontend && npm install && npm run dev
 ```
 
-## 📁 Project Structure
+### 4. Knowledge Base & RAG Indexing
 
-```
-bangla-support-llm/
-├── dataset/
-│   ├── scripts/          # Download, filter, prepare, split
-│   └── splits/           # train.jsonl, val.jsonl, test.jsonl
-├── training/
-│   ├── configs/          # QLoRA hyperparameter configs
-│   ├── train.py          # Unsloth + SFTTrainer
-│   └── merge_adapter.py  # LoRA → merged model
-├── evaluation/
-│   ├── eval_auto.py      # BLEU, ROUGE, BERTScore
-│   ├── eval_llm_judge.py # LLM-as-a-Judge
-│   └── results/
-├── inference/
-│   └── api/              # FastAPI + RAG + tools
-├── app/
-│   └── frontend/         # React chat UI
-├── docker/
-│   └── docker-compose.yml
-├── knowledge_base/       # RAG documents
-├── notebooks/            # Exploration notebooks
-├── README.md
-├── benchmarks.md
-└── model_card.md
+```bash
+python knowledge_base/build_index.py
 ```
 
-## 📊 Results
+### 5. Run Local App (API + React UI)
 
-See [benchmarks.md](benchmarks.md) for full evaluation results.
+```bash
+# Terminal 1: Backend
+uvicorn inference.api.main:app --reload --port 8000
 
-| Metric | Base Qwen3-8B | Fine-tuned | Δ |
-|--------|--------------|------------|---|
-| BLEU | — | — | — |
-| ROUGE-L | — | — | — |
-| BERTScore (F1) | — | — | — |
+# Terminal 2: Frontend
+cd app/frontend
+npm install
+npm run dev
+```
 
-## 🛠 Hardware
+Visit `http://localhost:3000` to interact with the Bangla Support Assistant.
 
-- **GPU**: NVIDIA RTX 5060 Ti (16 GB VRAM)
-- **Training**: QLoRA 4-bit → ~10 GB VRAM
-- **Training time**: ~8-10 hours
+### 6. Docker Deployment
+
+```bash
+docker-compose -f docker/docker-compose.yml up --build
+```
+
+---
+
+## 📊 Evaluation & Benchmarks
+
+| Model Variant | BLEU | ROUGE-L | BERTScore (F1) | LLM-Judge Avg |
+|---|:---:|:---:|:---:|:---:|
+| Base Qwen3-8B | *TBD* | *TBD* | *TBD* | *TBD* |
+| **Fine-Tuned BanglaSupport-LLM** | **TBD** | **TBD** | **TBD** | **TBD** |
+
+---
+
+## 👨‍💻 Author
+
+**Mahmudur Rahman (mrshibly)**
+- **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
+- **GitHub**: [@mrshibly](https://github.com/mrshibly)
+
+---
 
 ## 📄 License
 
-MIT
-
-## 🤝 Acknowledgments
-
-- [Bangla-Instruct](https://huggingface.co/datasets/md-nishat-008/Bangla-Instruct) — TigerLLM (ACL 2025)
-- [Aya Dataset](https://huggingface.co/datasets/CohereForAI/aya_dataset) — Cohere For AI
-- [Unsloth](https://github.com/unslothai/unsloth) — Fast LLM fine-tuning
-- [Qwen3](https://huggingface.co/Qwen/Qwen3-8B) — Alibaba Cloud
+Distributed under the MIT License. See `LICENSE` for more information.

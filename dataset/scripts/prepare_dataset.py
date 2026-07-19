@@ -9,7 +9,13 @@ Usage:
 
 import hashlib
 import json
+import sys
 from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 from rich.console import Console
 from rich.table import Table
@@ -77,9 +83,9 @@ def main():
     # ── Step 2: Normalize ───────────────────────────────────────
     console.print("[yellow]Normalizing text...[/yellow]")
     for ex in all_examples:
-        ex["instruction"] = normalize_text(ex.get("instruction", ""))
-        ex["input"] = normalize_text(ex.get("input", ""))
-        ex["output"] = normalize_text(ex.get("output", ""))
+        ex["instruction"] = normalize_text(ex.get("instruction") or "")
+        ex["input"] = normalize_text(ex.get("input") or "")
+        ex["output"] = normalize_text(ex.get("output") or "")
 
     # ── Step 3: Filter short/empty ──────────────────────────────
     valid = []

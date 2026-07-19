@@ -10,8 +10,14 @@ Usage:
 
 import json
 import random
+import sys
 from collections import Counter
 from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 from rich.console import Console
 from rich.table import Table
