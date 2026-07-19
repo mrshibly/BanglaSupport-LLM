@@ -1,0 +1,38 @@
+# ===== Training =====
+unsloth
+trl>=0.9.0
+transformers>=4.44.0
+peft>=0.12.0
+datasets>=2.20.0
+bitsandbytes>=0.43.0
+accelerate>=0.33.0
+
+# ===== Evaluation =====
+rouge-score
+nltk
+bert-score
+scikit-learn
+
+# ===== Inference =====
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.0.0
+sse-starlette  # Server-Sent Events for streaming
+
+# ===== RAG =====
+langchain>=0.2.0
+langchain-community>=0.2.0
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# ===== Data Processing =====
+pandas>=2.0.0
+datasketch  # MinHash LSH deduplication
+tqdm
+
+# ===== Logging =====
+wandb
+
+# ===== Utilities =====
+rich  # Pretty console output
+click  # CLI arguments
