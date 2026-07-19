@@ -8,7 +8,14 @@ Usage:
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+# Fix Windows console encoding
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 import yaml
 
@@ -66,30 +73,45 @@ def main():
 
     config = load_config(args.config)
 
-    # ── Step 1: Load model with Unsloth ─────────────────────────
-    print("Loading model with Unsloth...")
-    from unsloth import FastLanguageModel
+    # ── Step 1: Load model with HuggingFace Transformers + BitsAndBytes ──
+    print("Loading 4-bit model...")
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=config["model"]["name"],
-        max_seq_length=config["model"]["max_seq_length"],
+    bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
-        dtype=None,  # auto-detect
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_use_double_quant=True,
     )
+    tokenizer = AutoTokenizer.from_pretrained(config["model"]["name"])
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
 
-    # ── Step 2: Apply LoRA ──────────────────────────────────────
+    model = AutoModelForCausalLM.from_pretrained(
+        config["model"]["name"],
+        device_map="cuda",
+        low_cpu_mem_usage=True,
+        trust_remote_code=True,
+    )
+    print("✓ Step 1: Model loaded successfully.")
+
+    # ── Step 2: Apply LoRA with PEFT ────────────────────────────
     print("Applying LoRA adapters...")
+    from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+
     lora_cfg = config["lora"]
-    model = FastLanguageModel.get_peft_model(
-        model,
+    model = prepare_model_for_kbit_training(model)
+    peft_config = LoraConfig(
         r=lora_cfg["r"],
         lora_alpha=lora_cfg["lora_alpha"],
         lora_dropout=lora_cfg["lora_dropout"],
         target_modules=lora_cfg["target_modules"],
         bias="none",
-        use_gradient_checkpointing="unsloth",
-        random_state=config["training"]["seed"],
+        task_type="CAUSAL_LM",
     )
+    model = get_peft_model(model, peft_config)
+    print("✓ Step 2: PEFT LoRA applied successfully.")
 
     # ── Step 3: Load and format dataset ─────────────────────────
     print("Loading dataset...")
@@ -97,6 +119,11 @@ def main():
 
     train_raw = load_jsonl(config["data"]["train_path"])
     val_raw = load_jsonl(config["data"]["val_path"])
+
+    if args.max_steps > 0:
+        print(f"⚡ Smoke test mode active (--max_steps {args.max_steps}): slicing dataset for fast execution.")
+        train_raw = train_raw[: max(args.max_steps * 10, 500)]
+        val_raw = val_raw[:100]
 
     print(f"  Train: {len(train_raw):,} examples")
     print(f"  Val:   {len(val_raw):,} examples")
@@ -107,6 +134,7 @@ def main():
 
     train_dataset = Dataset.from_dict({"text": train_texts})
     val_dataset = Dataset.from_dict({"text": val_texts})
+    print("✓ Step 3: Dataset loaded and formatted successfully.")
 
     # ── Step 4: Configure trainer ───────────────────────────────
     print("Configuring SFTTrainer...")
@@ -128,12 +156,12 @@ def main():
         fp16=t_cfg["fp16"],
         bf16=t_cfg["bf16"],
         logging_steps=t_cfg["logging_steps"],
-        save_strategy=t_cfg["save_strategy"],
-        eval_strategy=t_cfg["eval_strategy"],
+        save_strategy="no" if args.max_steps > 0 else t_cfg["save_strategy"],
+        eval_strategy="no" if args.max_steps > 0 else t_cfg["eval_strategy"],
         eval_steps=t_cfg["eval_steps"],
         seed=t_cfg["seed"],
         max_steps=args.max_steps if args.max_steps > 0 else -1,
-        report_to="wandb",
+        report_to="none",
         run_name="bangla-support-qwen3-8b",
     )
 
@@ -157,15 +185,19 @@ def main():
 
     # ── Step 6: Save adapter ────────────────────────────────────
     adapter_path = Path(config["output"]["dir"]) / "final_adapter"
+    adapter_path.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(str(adapter_path))
     tokenizer.save_pretrained(str(adapter_path))
     print(f"\n✓ Adapter saved to {adapter_path}")
 
     # ── Step 7: Log final metrics ───────────────────────────────
-    metrics = trainer.evaluate()
-    print("\nFinal evaluation metrics:")
-    for k, v in metrics.items():
-        print(f"  {k}: {v:.4f}" if isinstance(v, float) else f"  {k}: {v}")
+    if args.max_steps <= 0:
+        metrics = trainer.evaluate()
+        print("\nFinal evaluation metrics:")
+        for k, v in metrics.items():
+            print(f"  {k}: {v:.4f}" if isinstance(v, float) else f"  {k}: {v}")
+    else:
+        print("\n✓ Smoke test training completed successfully!")
 
 
 if __name__ == "__main__":
