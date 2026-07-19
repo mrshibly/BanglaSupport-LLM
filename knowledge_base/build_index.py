@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 from rich.console import Console
 
 console = Console()
@@ -70,7 +70,6 @@ def main():
         embedding=embeddings,
         persist_directory=str(DB_DIR)
     )
-    vector_db.persist()
     console.print(f"[green]✓ Saved ChromaDB index to {DB_DIR}[/green]\n")
 
 if __name__ == "__main__":
