@@ -30,12 +30,14 @@ checkpoints/
 *.pt
 *.pth
 
-# Dataset cache
+# Dataset cache & processed splits (large files)
+dataset/raw/
+dataset/processed/
+dataset/splits/
+*.jsonl
+*.parquet
+*.csv
 dataset/raw/*.json
-dataset/raw/*.jsonl
-dataset/raw/*.parquet
-dataset/raw/*.csv
-*.cache
 
 # HuggingFace cache
 .cache/
