@@ -1,4 +1,4 @@
-# 🇧🇩 BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
+# BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
 
 [![HuggingFace Model](https://img.shields.io/badge/HuggingFace-mrshibly%2Fbangla--support--qwen3--8b-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
 [![Base Architecture](https://img.shields.io/badge/Model-Qwen2.5--7B--Instruct-blue.svg)](https://huggingface.co/unsloth/Qwen2.5-7B-Instruct-bnb-4bit)
