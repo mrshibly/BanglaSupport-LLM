@@ -1,19 +1,20 @@
 # 🇧🇩 BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
 
-[![Model Architecture](https://img.shields.io/badge/Model-Qwen3--8B-blue.svg)](https://huggingface.co/Qwen/Qwen3-8B)
-[![Fine-Tuning](https://img.shields.io/badge/FineTuning-QLoRA%204--bit-green.svg)](https://github.com/unslothai/unsloth)
+[![HuggingFace Model](https://img.shields.io/badge/HuggingFace-mrshibly%2Fbangla--support--qwen3--8b-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
+[![Base Architecture](https://img.shields.io/badge/Model-Qwen2.5--7B--Instruct-blue.svg)](https://huggingface.co/unsloth/Qwen2.5-7B-Instruct-bnb-4bit)
+[![Fine-Tuning](https://img.shields.io/badge/FineTuning-Unsloth%20QLoRA%20bfloat16-green.svg)](https://github.com/unslothai/unsloth)
 [![RAG](https://img.shields.io/badge/RAG-ChromaDB%20%2B%20MiniLM-orange.svg)](https://github.com/chroma-core/chroma)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Author](https://img.shields.io/badge/Author-Mahmudur%20Rahman%20(mrshibly)-brightgreen.svg)](mailto:mahmudurrahman858@gmail.com)
 
-A production-grade, end-to-end Large Language Model project demonstrating **dataset engineering, QLoRA fine-tuning, automated & LLM-as-a-Judge evaluation, RAG retrieval comparison, agentic tool-calling, and full-stack deployment** for Bangla e-commerce customer support.
+A production-grade, end-to-end Large Language Model project demonstrating **dataset engineering, Unsloth QLoRA fine-tuning, automated & LLM-as-a-Judge evaluation, RAG retrieval comparison, agentic tool-calling, and full-stack deployment** for Bangla e-commerce customer support.
 
 ---
 
 ## 🌟 Key Features & Engineering Highlights
 
-- 🎯 **Domain-Specific Fine-Tuning**: Fine-tuned **Qwen3-8B** using QLoRA (4-bit quantization, $r=16, \alpha=32$) via Unsloth to eliminate cross-lingual Hindi-bleeding and deliver natural, fluent Bangla customer support responses.
-- 🧹 **Native Bangla Dataset Pipeline**: Built a zero-cost 300K+ example instruction tuning pipeline filtered from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` with NFC Unicode normalization and MinHash LSH deduplication.
+- 🎯 **Domain-Specific Fine-Tuning**: Fine-tuned **Qwen2.5-7B-Instruct** using Unsloth QLoRA (4-bit quantization, `bfloat16` precision, $r=16, \alpha=32$) on an NVIDIA RTX 5060 Ti GPU to eliminate cross-lingual Hindi-bleeding and deliver natural, fluent Bangla customer support responses.
+- 🧹 **Native Bangla Dataset Pipeline**: Built a zero-cost instruction tuning pipeline filtered from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` with NFC Unicode normalization and MinHash LSH deduplication.
 - 📐 **Rigorous Evaluation Suite**: Multi-dimensional benchmark pipeline comparing base vs fine-tuned models across **BLEU**, **ROUGE-L**, **BERTScore** (`sagorsarker/bangla-bert-base`), and **LLM-as-a-Judge** scoring (Helpfulness, Fluency, Accuracy, Tone).
 - 🔍 **RAG Comparison System**: 3-tier comparative benchmark (Base + RAG vs. Fine-tuned vs. Fine-tuned + RAG) analyzing latency, hallucination rates, and token consumption.
 - ⚡ **Agentic Tool-Calling**: Integrated function-calling engine routing intent to mock SQLite order status and return eligibility APIs.
@@ -26,7 +27,7 @@ A production-grade, end-to-end Large Language Model project demonstrating **data
 
 | Domain | Technologies |
 |---|---|
-| **Base Model & Training** | Qwen3-8B, Unsloth, HuggingFace TRL, PEFT, bitsandbytes, Accelerate, PyTorch |
+| **Base Model & Training** | Qwen2.5-7B / Qwen3-8B, Unsloth FastLanguageModel, PyTorch 2.11.0+cu128 (`bf16`), PEFT, bitsandbytes |
 | **Dataset & NLP** | Datasets, Datasketch (MinHash LSH), unicodedata2, NLTK, ROUGE, BERTScore |
 | **RAG & Vector Search** | ChromaDB, LangChain, Sentence-Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) |
 | **Inference Backend** | FastAPI, SSE-Starlette, Pydantic, SQLite (Mock Order DB), Uvicorn |

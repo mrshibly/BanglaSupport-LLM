@@ -4,9 +4,9 @@
 # Estimated training time: ~8-10 hours
 
 model:
-  name: Qwen/Qwen3-8B
+  name: unsloth/Qwen2.5-7B-Instruct-bnb-4bit
   quantization: 4bit       # NF4 via bitsandbytes
-  max_seq_length: 2048
+  max_seq_length: 1024
   dtype: float16
 
 lora:
@@ -23,16 +23,16 @@ lora:
     - down_proj
 
 training:
-  epochs: 3
+  epochs: 1
   per_device_train_batch_size: 2
   per_device_eval_batch_size: 2
-  gradient_accumulation_steps: 8   # effective batch size = 16
+  gradient_accumulation_steps: 16   # effective batch size = 32
   learning_rate: 2.0e-4
   lr_scheduler_type: cosine
   warmup_ratio: 0.05
   weight_decay: 0.01
-  fp16: true
-  bf16: false
+  fp16: false
+  bf16: true
   logging_steps: 10
   save_strategy: epoch
   eval_strategy: steps
@@ -42,8 +42,8 @@ training:
 data:
   train_path: dataset/splits/train.jsonl
   val_path: dataset/splits/val.jsonl
-  max_seq_length: 2048
+  max_seq_length: 1024
 
 output:
   dir: checkpoints/qwen3-8b-bangla-support
-  hub_model_id: null   # Set to push to HF Hub
+  hub_model_id: mrshibly/bangla-support-qwen3-8b

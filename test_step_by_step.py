@@ -18,24 +18,14 @@ print("3. Loading tokenizer...", flush=True)
 tokenizer = AutoTokenizer.from_pretrained(config["model"]["name"])
 print("✓ Tokenizer loaded.", flush=True)
 
-print("4. Loading model with BitsAndBytes 4-bit quantization...", flush=True)
-from transformers import BitsAndBytesConfig
-
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
-    bnb_4bit_use_double_quant=True,
-)
-
+print("4. Loading pre-downloaded 4-bit model...", flush=True)
 model = AutoModelForCausalLM.from_pretrained(
-    "Qwen/Qwen2.5-7B-Instruct",
-    quantization_config=bnb_config,
-    device_map="cuda",
+    "unsloth/Qwen2.5-7B-Instruct-bnb-4bit",
+    device_map="cpu",
     low_cpu_mem_usage=True,
     trust_remote_code=True,
 )
-print("✓ Model loaded.", flush=True)
+print("✓ Model loaded on CPU.", flush=True)
 
 print("5. Applying PEFT...", flush=True)
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
@@ -75,15 +65,15 @@ train_texts = [format_chat_template(ex, tokenizer) for ex in train_raw]
 train_dataset = Dataset.from_dict({"text": train_texts})
 print("✓ Dataset formatted.", flush=True)
 
-print("8. Importing SFTTrainer & TrainingArguments...", flush=True)
-from trl import SFTTrainer
-from transformers import TrainingArguments
-training_args = TrainingArguments(
+print("8. Importing SFTTrainer & SFTConfig...", flush=True)
+from trl import SFTTrainer, SFTConfig
+training_args = SFTConfig(
     output_dir=config["output"]["dir"],
     per_device_train_batch_size=1,
     gradient_accumulation_steps=1,
     learning_rate=2e-4,
-    fp16=True,
+    fp16=False,
+    use_cpu=True,
     logging_steps=1,
     max_steps=5,
     report_to="none"
@@ -93,12 +83,9 @@ print("✓ TrainingArguments created.", flush=True)
 print("9. Creating SFTTrainer...", flush=True)
 trainer = SFTTrainer(
     model=model,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     train_dataset=train_dataset,
     args=training_args,
-    dataset_text_field="text",
-    max_seq_length=512,
-    packing=False,
 )
 print("✓ SFTTrainer created.", flush=True)
 

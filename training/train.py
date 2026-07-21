@@ -73,52 +73,38 @@ def main():
 
     config = load_config(args.config)
 
-    # ── Step 1: Load model with HuggingFace Transformers + BitsAndBytes ──
-    print("Loading 4-bit model...")
-    import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    # ── Step 1: Load model with Unsloth FastLanguageModel ──
+    print("Loading 4-bit model via Unsloth...")
+    from unsloth import FastLanguageModel
 
-    bnb_config = BitsAndBytesConfig(
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=config["model"]["name"],
+        max_seq_length=config["model"]["max_seq_length"],
         load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-    )
-    tokenizer = AutoTokenizer.from_pretrained(config["model"]["name"])
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    model = AutoModelForCausalLM.from_pretrained(
-        config["model"]["name"],
-        device_map="cuda",
-        low_cpu_mem_usage=True,
-        trust_remote_code=True,
     )
     print("✓ Step 1: Model loaded successfully.")
 
-    # ── Step 2: Apply LoRA with PEFT ────────────────────────────
+    # ── Step 2: Apply LoRA with Unsloth ────────────────────────────
     print("Applying LoRA adapters...")
-    from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-
     lora_cfg = config["lora"]
-    model = prepare_model_for_kbit_training(model)
-    peft_config = LoraConfig(
+    model = FastLanguageModel.get_peft_model(
+        model,
         r=lora_cfg["r"],
         lora_alpha=lora_cfg["lora_alpha"],
         lora_dropout=lora_cfg["lora_dropout"],
         target_modules=lora_cfg["target_modules"],
         bias="none",
-        task_type="CAUSAL_LM",
+        use_gradient_checkpointing="unsloth",
+        random_state=config["training"]["seed"],
     )
-    model = get_peft_model(model, peft_config)
-    print("✓ Step 2: PEFT LoRA applied successfully.")
+    print("✓ Step 2: Unsloth PEFT LoRA applied successfully.")
 
     # ── Step 3: Load and format dataset ─────────────────────────
     print("Loading dataset...")
     from datasets import Dataset
 
-    train_raw = load_jsonl(config["data"]["train_path"])
-    val_raw = load_jsonl(config["data"]["val_path"])
+    train_raw = load_jsonl(config["data"]["train_path"])[:25000]
+    val_raw = load_jsonl(config["data"]["val_path"])[:500]
 
     if args.max_steps > 0:
         print(f"⚡ Smoke test mode active (--max_steps {args.max_steps}): slicing dataset for fast execution.")
@@ -138,12 +124,11 @@ def main():
 
     # ── Step 4: Configure trainer ───────────────────────────────
     print("Configuring SFTTrainer...")
-    from trl import SFTTrainer
-    from transformers import TrainingArguments
+    from trl import SFTTrainer, SFTConfig
 
     t_cfg = config["training"]
 
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         output_dir=config["output"]["dir"],
         num_train_epochs=t_cfg["epochs"],
         per_device_train_batch_size=t_cfg["per_device_train_batch_size"],
@@ -167,13 +152,10 @@ def main():
 
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         args=training_args,
-        dataset_text_field="text",
-        max_seq_length=config["data"]["max_seq_length"],
-        packing=False,
     )
 
     # ── Step 5: Train ───────────────────────────────────────────
@@ -196,6 +178,32 @@ def main():
         print("\nFinal evaluation metrics:")
         for k, v in metrics.items():
             print(f"  {k}: {v:.4f}" if isinstance(v, float) else f"  {k}: {v}")
+
+        # ── Step 8: Push to HuggingFace Hub & GitHub ─────────────────
+        hub_id = config["output"].get("hub_model_id")
+        if hub_id:
+            print(f"\n🚀 Pushing merged model to HuggingFace Hub: {hub_id}...")
+            try:
+                model.push_to_hub_merged(hub_id, tokenizer, save_method="merged_16bit")
+                print(f"✓ Successfully pushed merged model to Hugging Face Hub ({hub_id})!")
+            except Exception as e:
+                print(f"⚠️ HuggingFace Merged Push Warning: {e}")
+                try:
+                    model.push_to_hub(hub_id)
+                    tokenizer.push_to_hub(hub_id)
+                    print(f"✓ Pushed adapter to Hugging Face Hub ({hub_id})!")
+                except Exception as e2:
+                    print(f"⚠️ Failed to push adapter to HF Hub: {e2}")
+
+        print("\n📦 Auto-pushing repository updates to GitHub...")
+        import subprocess
+        try:
+            subprocess.run(["git", "add", "."], check=True)
+            subprocess.run(["git", "commit", "-m", "Auto-commit: QLoRA training completed & metrics logged"], check=True)
+            subprocess.run(["git", "push", "origin", "main"], check=True)
+            print("✓ Successfully pushed latest changes to GitHub (origin/main)!")
+        except Exception as ge:
+            print(f"⚠️ Git auto-push warning: {ge}")
     else:
         print("\n✓ Smoke test training completed successfully!")
 
