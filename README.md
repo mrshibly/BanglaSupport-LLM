@@ -1,6 +1,7 @@
 # BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
 
-[![HuggingFace Model](https://img.shields.io/badge/HuggingFace-mrshibly%2Fbangla--support--qwen3--8b-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
+[![HuggingFace Model](https://img.shields.io/badge/HuggingFace-Model%20Hub-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
+[![HuggingFace Space](https://img.shields.io/badge/HuggingFace-Live%20Demo%20Space-blue.svg)](https://huggingface.co/spaces/mrshibly/bangla-support-llm)
 [![Base Architecture](https://img.shields.io/badge/Model-Qwen2.5--7B--Instruct-blue.svg)](https://huggingface.co/unsloth/Qwen2.5-7B-Instruct-bnb-4bit)
 [![Fine-Tuning](https://img.shields.io/badge/FineTuning-Unsloth%20QLoRA%20bfloat16-green.svg)](https://github.com/unslothai/unsloth)
 [![RAG](https://img.shields.io/badge/RAG-ChromaDB%20%2B%20MiniLM-orange.svg)](https://github.com/chroma-core/chroma)
