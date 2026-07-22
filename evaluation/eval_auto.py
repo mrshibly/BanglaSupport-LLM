@@ -45,15 +45,26 @@ def load_jsonl(path: str) -> list[dict]:
 
 def generate_responses(model_path: str, test_data: list[dict], max_examples: int = 500) -> list[str]:
     """Generate model responses for test examples."""
-    from unsloth import FastLanguageModel
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from peft import PeftModel
 
     console.print(f"[yellow]Loading model: {model_path}[/yellow]")
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=model_path,
-        max_seq_length=2048,
+    base_model_name = "unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
+    tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+    bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16,
     )
-    FastLanguageModel.for_inference(model)
+    base_model = AutoModelForCausalLM.from_pretrained(
+        base_model_name,
+        quantization_config=bnb_config,
+        device_map="auto",
+        trust_remote_code=True,
+    )
+    model = PeftModel.from_pretrained(base_model, model_path)
+    model.eval()
 
     system_prompt = (
         "তুমি একজন সহায়ক বাংলা ই-কমার্স গ্রাহক সেবা সহকারী। "
