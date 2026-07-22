@@ -257,15 +257,17 @@ You can deploy an interactive live demo of this model to **Hugging Face Spaces**
 
 This system was engineered end-to-end by:
 
-- **Mahmudur Rahman (mrshibly)**
+- **Mahmudur Rahman**
   - **Focus**: ML Pipeline, Model Fine-Tuning, Full-Stack Architecture, RAG implementation.
   - **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
   - **GitHub**: [@mrshibly](https://github.com/mrshibly)
   - **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
 
-- **FHJibon**
-  - **Focus**: Dataset curation, AI testing, and agentic intent design.
+- **Ferdous Hasan**  
+  - **Focus**: ML Pipeline, Model Fine-Tuning, Dataset curation, Evaluation.
+  - **Email**: [ferdoushasanjibon25@gmail.com](mailto:ferdoushasanjibon25@gmail.com)
   - **GitHub**: [@FHJibon](https://github.com/FHJibon)
+  - **Hugging Face**: [@FHJibon](https://huggingface.co/FHJibon)
 
 ---
 
