@@ -141,6 +141,9 @@ BanglaSupport-LLM/
 │       ├── rag.py                    # RAG retriever pipeline
 │       ├── tools.py                  # Agentic tool-calling & SQLite DB
 │       └── schemas.py                # Pydantic schemas
+├── tests/
+│   └── test_inference.py             # Inference test runner
+├── hf_space_app.py                   # Gradio web app for Hugging Face Spaces
 ├── app/
 │   └── frontend/                     # Modern React + Vite chat application
 ├── docker/

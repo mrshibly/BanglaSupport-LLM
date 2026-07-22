@@ -24,6 +24,7 @@ env/
 
 # Model checkpoints (large files)
 checkpoints/
+unsloth_compiled_cache/
 *.bin
 *.safetensors
 *.gguf
