@@ -43,26 +43,35 @@ def load_jsonl(path: str) -> list[dict]:
     return examples
 
 
-def generate_responses(model_path: str, test_data: list[dict], max_examples: int = 500) -> list[str]:
+def generate_responses(model_path: str, test_data: list[dict], max_examples: int = 500, device_str: str = "cpu") -> list[str]:
     """Generate model responses for test examples."""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from peft import PeftModel
 
-    console.print(f"[yellow]Loading model: {model_path}[/yellow]")
+    console.print(f"[yellow]Loading model: {model_path} on {device_str.upper()}[/yellow]")
     base_model_name = "unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
     tokenizer = AutoTokenizer.from_pretrained(base_model_name)
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-    )
-    base_model = AutoModelForCausalLM.from_pretrained(
-        base_model_name,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True,
-    )
+    
+    if device_str == "cpu":
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_model_name,
+            device_map="cpu",
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+        )
+    else:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_model_name,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
+        )
     model = PeftModel.from_pretrained(base_model, model_path)
     model.eval()
 
@@ -150,6 +159,7 @@ def main():
     parser.add_argument("--model", type=str, required=True, help="Model path or HF ID")
     parser.add_argument("--test_data", type=str, default="dataset/splits/test.jsonl")
     parser.add_argument("--max_examples", type=int, default=500)
+    parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"])
     parser.add_argument("--output", type=str, default="evaluation/results/eval_auto.json")
     args = parser.parse_args()
 
@@ -160,7 +170,7 @@ def main():
     console.print(f"[green]✓ Loaded {len(test_data):,} test examples[/green]")
 
     # Generate predictions
-    predictions = generate_responses(args.model, test_data, args.max_examples)
+    predictions = generate_responses(args.model, test_data, args.max_examples, args.device)
     references = [ex["output"] for ex in test_data[: args.max_examples]]
 
     # Compute metrics
