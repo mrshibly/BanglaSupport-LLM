@@ -138,7 +138,7 @@ async def chat(req: ChatRequest):
 
         outputs = model.generate(
             input_ids=input_ids,
-            max_new_tokens=256,
+            max_new_tokens=512,
             temperature=0.7,
             do_sample=True,
             eos_token_id=eos_ids,

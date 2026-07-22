@@ -51,7 +51,7 @@ def respond(message, history):
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=256,
+            max_new_tokens=512,
             temperature=0.7,
             top_p=0.9,
             do_sample=True,
