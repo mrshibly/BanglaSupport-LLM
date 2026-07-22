@@ -10,6 +10,10 @@
 
 A production-grade, end-to-end AI engineering project demonstrating **dataset curation, Parameter-Efficient Fine-Tuning (QLoRA), Retrieval-Augmented Generation (RAG), Agentic Tool Execution, and Full-Stack System Design** tailored for Bangla NLP.
 
+<p align="center">
+  <img src="assets/image.png" alt="BanglaSupport-LLM Tri-Modal Interface" width="800">
+</p>
+
 ---
 
 ## 🌟 Research & Engineering Highlights
