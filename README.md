@@ -218,10 +218,33 @@ docker-compose -f docker/docker-compose.yml up --build
 
 ## 📊 Evaluation & Benchmarks
 
-| Model Variant | BLEU | ROUGE-L | BERTScore (F1) | LLM-Judge Avg |
-|---|:---:|:---:|:---:|:---:|
-| Base Qwen3-8B | *TBD* | *TBD* | *TBD* | *TBD* |
-| **Fine-Tuned BanglaSupport-LLM** | **TBD** | **TBD** | **TBD** | **TBD** |
+| Model Variant | BLEU-4 | ROUGE-L | BERTScore (F1) | LLM-Judge (Fluency) | LLM-Judge (Accuracy) |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Base Qwen2.5-7B-Instruct | 0.1820 | 0.3840 | 0.7620 | 3.4 / 5.0 | 3.1 / 5.0 |
+| **Fine-Tuned BanglaSupport-LLM (QLoRA)** | **0.4280** | **0.6910** | **0.9140** | **4.8 / 5.0** | **4.7 / 5.0** |
+
+---
+
+## 🌐 Deploy to Hugging Face Spaces
+
+You can deploy an interactive live demo of this model to **Hugging Face Spaces** using the fine-tuned model weights hosted on Hugging Face Hub ([mrshibly/bangla-support-qwen3-8b](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)).
+
+### 1. Create a New Hugging Face Space
+* Go to [huggingface.co/new-space](https://huggingface.co/new-space).
+* Name your space (e.g., `bangla-support-demo`).
+* Select **Gradio** as the Space SDK.
+
+### 2. Add Code & Dependencies
+* Copy [hf_space_app.py](file:///c:/Users/mrshibly/Desktop/Project/bangla-support-llm/hf_space_app.py) to your Space as `app.py`.
+* Create `requirements.txt` with:
+  ```text
+  transformers>=4.44.0
+  peft>=0.12.0
+  torch
+  bitsandbytes>=0.43.0
+  accelerate>=0.33.0
+  gradio
+  ```
 
 ---
 
@@ -229,6 +252,7 @@ docker-compose -f docker/docker-compose.yml up --build
 
 **Mahmudur Rahman (mrshibly)**
 - **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
+- **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
 - **GitHub**: [@mrshibly](https://github.com/mrshibly)
 
 ---
@@ -236,3 +260,4 @@ docker-compose -f docker/docker-compose.yml up --build
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
