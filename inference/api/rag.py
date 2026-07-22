@@ -7,21 +7,30 @@ DB_DIR = PROJECT_ROOT / "knowledge_base" / "embeddings"
 
 class RAGPipeline:
     def __init__(self):
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-        )
-        if DB_DIR.exists() and any(DB_DIR.iterdir()):
-            self.vector_db = Chroma(
-                persist_directory=str(DB_DIR),
-                embedding_function=self.embeddings
-            )
-        else:
-            self.vector_db = None
+        self._embeddings = None
+        self._vector_db = None
+
+    def _get_vector_db(self):
+        if self._vector_db is None:
+            try:
+                self._embeddings = HuggingFaceEmbeddings(
+                    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+                    model_kwargs={"device": "cpu"}
+                )
+                if DB_DIR.exists() and any(DB_DIR.iterdir()):
+                    self._vector_db = Chroma(
+                        persist_directory=str(DB_DIR),
+                        embedding_function=self._embeddings
+                    )
+            except Exception as e:
+                print(f"⚠ RAG init note: {e}")
+        return self._vector_db
 
     def retrieve(self, query: str, top_k: int = 3) -> list[str]:
-        if not self.vector_db:
+        vdb = self._get_vector_db()
+        if not vdb:
             return ["পলিসি সম্বলিত কোনো তথ্য ভাণ্ডার পাওয়া যায়নি।"]
-        results = self.vector_db.similarity_search(query, k=top_k)
+        results = vdb.similarity_search(query, k=top_k)
         return [doc.page_content for doc in results]
 
     def format_rag_prompt(self, query: str, contexts: list[str]) -> str:
