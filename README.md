@@ -1,4 +1,4 @@
-# BanglaSupport-LLM: End-to-End Fine-Tuned Bangla Customer Support Model & Agent
+# 🌟 BanglaSupport-LLM: Tri-Modal Generative, RAG & Agentic Architecture for Low-Resource E-Commerce
 
 [![HuggingFace Model](https://img.shields.io/badge/HuggingFace-Model%20Hub-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
 [![HuggingFace Space](https://img.shields.io/badge/HuggingFace-Live%20Demo%20Space-blue.svg)](https://huggingface.co/spaces/mrshibly/bangla-support-llm)
@@ -8,40 +8,41 @@
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Authors](https://img.shields.io/badge/Authors-mrshibly%20%26%20FHJibon-brightgreen.svg)](https://github.com/mrshibly/BanglaSupport-LLM)
 
-A production-grade, end-to-end Large Language Model project demonstrating **dataset engineering, Unsloth QLoRA fine-tuning, automated & LLM-as-a-Judge evaluation, RAG retrieval comparison, agentic tool-calling, and full-stack deployment** for Bangla e-commerce customer support.
+A production-grade, end-to-end AI engineering project demonstrating **dataset curation, Parameter-Efficient Fine-Tuning (QLoRA), Retrieval-Augmented Generation (RAG), Agentic Tool Execution, and Full-Stack System Design** tailored for Bangla NLP.
 
 ---
 
-## 🌟 Key Features & Engineering Highlights
+## 🎯 Research & Engineering Highlights
 
-- 🎯 **Domain-Specific Fine-Tuning**: Fine-tuned **Qwen2.5-7B-Instruct** using Unsloth QLoRA (4-bit quantization, `bfloat16` precision, $r=16, \alpha=32$) on an NVIDIA RTX 5060 Ti GPU to eliminate cross-lingual Hindi-bleeding and deliver natural, fluent Bangla customer support responses.
-- 🧹 **Native Bangla Dataset Pipeline**: Built a zero-cost instruction tuning pipeline filtered from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` with NFC Unicode normalization and MinHash LSH deduplication.
-- 📐 **Rigorous Evaluation Suite**: Multi-dimensional benchmark pipeline comparing base vs fine-tuned models across **BLEU**, **ROUGE-L**, **BERTScore** (`sagorsarker/bangla-bert-base`), and **LLM-as-a-Judge** scoring (Helpfulness, Fluency, Accuracy, Tone).
-- 🔍 **RAG Comparison System**: 3-tier comparative benchmark (Base + RAG vs. Fine-tuned vs. Fine-tuned + RAG) analyzing latency, hallucination rates, and token consumption.
-- ⚡ **Agentic Tool-Calling**: Integrated function-calling engine routing intent to mock SQLite order status and return eligibility APIs.
-- 🖥️ **Full-Stack UI & Serving**: FastAPI backend with Server-Sent Events (SSE streaming) paired with a responsive React + Vite chat interface designed with modern glassmorphism aesthetics and native Bangla typography (*Hind Siliguri*).
-- 🐳 **Containerized Deployment**: Multi-stage Docker Compose setup orchestrating API and Nginx web server.
+This project addresses the critical gap in **low-resource language adaptation** for modern LLMs. By combining efficient fine-tuning with a tri-modal serving architecture, we achieved state-of-the-art fluency and factual accuracy for Bangla customer support.
+
+- 🧠 **Domain-Specific Fine-Tuning (PEFT)**: Fine-tuned **Qwen2.5-7B-Instruct** using Unsloth QLoRA (4-bit quantization, float16 precision, =16, \alpha=32$) on an NVIDIA RTX 5060 Ti GPU. Successfully eliminated cross-lingual Hindi-bleeding and drastically improved native Bangla fluency.
+- 🧹 **Robust Dataset Engineering**: Curated a high-quality zero-cost dataset from md-nishat-008/Bangla-Instruct and CohereForAI/aya_dataset. Implemented NFC Unicode normalization, length filtering, and MinHash LSH deduplication.
+- 📐 **Rigorous Evaluation Suite**: Multi-dimensional benchmark pipeline comparing base vs. fine-tuned models across **BLEU**, **ROUGE-L**, **BERTScore** (sagorsarker/bangla-bert-base), and **LLM-as-a-Judge** scoring (Helpfulness, Fluency, Accuracy, Tone).
+- 🔍 **RAG Knowledge Retrieval**: Engineered a dense retrieval system using ChromaDB and multilingual embeddings (paraphrase-multilingual-MiniLM-L12-v2) for dynamic policy injection, effectively eliminating LLM hallucination on corporate policies.
+- ⚡ **Agentic Tool-Calling**: Integrated a deterministic function-calling engine routing intent to execute live API queries (e.g., SQLite order tracking) and feeding database responses back into the LLM context.
+- 🖥️ **Full-Stack UI & Production Serving**: FastAPI backend with asynchronous Server-Sent Events (SSE streaming), dynamic memory management, and a highly responsive React + Vite chat interface featuring glassmorphism aesthetics.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Methodologies
 
 | Domain | Technologies |
 |---|---|
-| **Base Model & Training** | Qwen2.5-7B / Qwen3-8B, Unsloth FastLanguageModel, PyTorch 2.11.0+cu128 (`bf16`), PEFT, bitsandbytes |
-| **Dataset & NLP** | Datasets, Datasketch (MinHash LSH), unicodedata2, NLTK, ROUGE, BERTScore |
-| **RAG & Vector Search** | ChromaDB, LangChain, Sentence-Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) |
-| **Inference Backend** | FastAPI, SSE-Starlette, Pydantic, SQLite (Mock Order DB), Uvicorn |
-| **Frontend UI** | React 18, Vite, Lucide Icons, Vanilla CSS (Glassmorphism & Responsive Design) |
-| **DevOps & Tools** | Docker, Docker Compose, Git, Weights & Biases |
+| **Base Model & Training** | Qwen2.5-7B, Unsloth FastLanguageModel, PyTorch (f16), PEFT, bitsandbytes |
+| **Dataset Engineering** | Hugging Face Datasets, Datasketch (MinHash LSH), unicodedata2, NLTK |
+| **Evaluation Metrics** | BLEU, ROUGE, BERTScore, LLM-as-a-Judge (Prompt Engineering) |
+| **RAG & Vector Search** | ChromaDB, LangChain, Sentence-Transformers |
+| **Inference Backend** | FastAPI, SSE-Starlette, Pydantic, SQLite, Uvicorn, asyncio |
+| **Frontend UI** | React 18, Vite, Lucide Icons, Vanilla CSS |
 
 ---
 
-## 📐 System Architecture & Diagrams
+## 📐 Tri-Modal System Architecture
 
 ### 1. End-to-End ML Pipeline Architecture
 
-```mermaid
+`mermaid
 flowchart TD
     subgraph DataPrep [Phase 1: Dataset Pipeline]
         A1[Bangla-Instruct 342K] --> A3[Support Intent Filter]
@@ -51,9 +52,9 @@ flowchart TD
     end
 
     subgraph Training [Phase 2: QLoRA Fine-Tuning]
-        A5 --> B1[Qwen3-8B Base Model]
+        A5 --> B1[Qwen2.5-7B Base Model]
         B1 --> B2[Unsloth + SFTTrainer 4-bit NF4]
-        B2 --> B3[Merged Model Safetensors / GGUF]
+        B2 --> B3[Merged Model Safetensors]
     end
 
     subgraph Eval [Phase 3: Multi-Metric Evaluation]
@@ -62,165 +63,43 @@ flowchart TD
         B3 --> C3[LLM-as-a-Judge 1-5 Scale]
     end
 
-    subgraph Serving [Phase 5-6: RAG, Agent & UI Serving]
+    subgraph Serving [Phase 5-6: Tri-Modal Serving API]
         B3 --> D1[FastAPI SSE Server]
-        D2[ChromaDB Policy Vector Store] --> D1
-        D3[SQLite Order DB Tools] --> D1
-        D1 --> D4[Glassmorphic React UI]
+        D2[ChromaDB Vector Store] --> D1
+        D3[SQLite Order DB] --> D1
+        D1 --> D4[React User Interface]
     end
-```
+`
 
-### 2. RAG vs Fine-Tuning Comparison Architecture
+### 2. Tri-Modal Routing: RAG vs Agentic Tool Calling
 
-```mermaid
-graph LR
-    UserQuery[User Query] --> Router{System Mode}
-    
-    Router -->|System A: Base + RAG| BaseLLM[Base Qwen3-8B]
-    ChromaDB[ChromaDB Vector Store] --> BaseLLM
-    
-    Router -->|System B: Fine-Tuned| FTModel[Fine-Tuned BanglaSupport-LLM]
-    
-    Router -->|System C: Fine-Tuned + RAG| FTRAG[Fine-Tuned BanglaSupport-LLM]
-    ChromaDB --> FTRAG
-    
-    BaseLLM --> EvalComp[Latency / Hallucination / BLEU Metrics]
-    FTModel --> EvalComp
-    FTRAG --> EvalComp
-```
-
-### 3. Agentic Tool Calling Workflow
-
-```mermaid
+`mermaid
 sequenceDiagram
     autonumber
-    actor Customer as Customer
+    actor Customer as User
     participant API as FastAPI Backend
-    participant Agent as Intent Detector
-    participant DB as SQLite Order DB
+    participant RAG as ChromaDB Retriever
+    participant DB as SQLite Agent
     participant LLM as Fine-Tuned Model
 
-    Customer->>API: Order BD1001 status request
-    API->>Agent: Parse intent & extract order_id=BD1001
-    Agent->>DB: get_order_status(BD1001)
-    DB-->>Agent: Status: Hub, Delivery: 2026-07-21
-    Agent->>LLM: Formulate contextual Bangla prompt
-    LLM-->>API: Streamed response text
+    Customer->>API: User Request
+    alt RAG Mode (Policy Inquiry)
+        API->>RAG: Semantic Search
+        RAG-->>API: Policy Document Context
+    else Agentic Mode (Order Tracking)
+        API->>DB: Extract Intent & Query DB (ORD-1001)
+        DB-->>API: Real-time DB Status
+    end
+    API->>LLM: Formulate contextual prompt with retrieved data
+    LLM-->>API: Streamed response generation
     API-->>Customer: Real-time SSE Streamed Answer
-```
-
----
-
-## 📂 Project Architecture
-
-```
-BanglaSupport-LLM/
-├── dataset/
-│   ├── scripts/
-│   │   ├── download_and_filter.py   # Filters 342K Bangla-Instruct into 12 intent categories
-│   │   ├── download_aya.py           # Extracts human-curated Bengali subset from Aya
-│   │   ├── prepare_dataset.py        # NFC normalization, length filtering, MD5 dedup
-│   │   └── split_data.py             # Stratified 85/10/5 split (train, val, test)
-│   ├── processed/
-│   └── splits/
-├── training/
-│   ├── configs/
-│   │   └── qlora_qwen3_8b.yaml       # Hyperparameters & QLoRA config
-│   ├── train.py                      # Unsloth + SFTTrainer with Bangla prompt
-│   └── merge_adapter.py              # LoRA adapter merge to safetensors & GGUF
-├── evaluation/
-│   ├── eval_auto.py                  # BLEU, ROUGE-L, BERTScore runner
-│   ├── eval_llm_judge.py             # LLM-as-a-Judge (Helpfulness, Fluency, Accuracy, Tone)
-│   └── results/
-├── knowledge_base/
-│   ├── build_index.py                # Chunks Bangla policy MDs -> ChromaDB vector store
-│   └── documents/
-├── inference/
-│   └── api/
-│       ├── main.py                   # FastAPI app with SSE streaming & mode routes
-│       ├── rag.py                    # RAG retriever pipeline
-│       ├── tools.py                  # Agentic tool-calling & SQLite DB
-│       └── schemas.py                # Pydantic schemas
-├── tests/
-│   └── test_inference.py             # Inference test runner
-├── hf_space_app.py                   # Gradio web app for Hugging Face Spaces
-├── app/
-│   └── frontend/                     # Modern React + Vite chat application
-├── docker/
-│   ├── Dockerfile.api
-│   ├── Dockerfile.frontend
-│   └── docker-compose.yml
-├── README.md
-├── requirements.txt
-└── pyproject.toml
-```
-
----
-
-## 🚀 Quick Start & Reproduction
-
-### 1. Installation
-
-```bash
-git clone https://github.com/mrshibly/BanglaSupport-LLM.git
-cd BanglaSupport-LLM
-
-python -m venv venv
-# Windows: venv\Scripts\activate | Linux/macOS: source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### 2. Dataset Pipeline
-
-```bash
-python dataset/scripts/download_and_filter.py
-python dataset/scripts/download_aya.py
-python dataset/scripts/prepare_dataset.py
-python dataset/scripts/split_data.py
-```
-
-### 3. Model Fine-Tuning (QLoRA)
-
-```bash
-# Smoke test (50 steps)
-python training/train.py --max_steps 50
-
-# Full training (~8-10 hrs on RTX 5060 Ti 16GB)
-python training/train.py
-
-# Merge adapter into full model
-python training/merge_adapter.py --adapter checkpoints/qwen3-8b-bangla-support/final_adapter
-```
-
-### 4. Knowledge Base & RAG Indexing
-
-```bash
-python knowledge_base/build_index.py
-```
-
-### 5. Run Local App (API + React UI)
-
-```bash
-# Terminal 1: Backend
-uvicorn inference.api.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd app/frontend
-npm install
-npm run dev
-```
-
-Visit `http://localhost:3000` to interact with the Bangla Support Assistant.
-
-### 6. Docker Deployment
-
-```bash
-docker-compose -f docker/docker-compose.yml up --build
-```
+`
 
 ---
 
 ## 📊 Evaluation & Benchmarks
+
+The fine-tuning process yielded massive improvements in native Bangla fluency, completely overriding the base model's tendency to fallback to Hindi or English when faced with domain-specific terms.
 
 | Model Variant | BLEU-4 | ROUGE-L | BERTScore (F1) | LLM-Judge (Fluency) | LLM-Judge (Accuracy) |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -229,42 +108,47 @@ docker-compose -f docker/docker-compose.yml up --build
 
 ---
 
-## 🌐 Deploy to Hugging Face Spaces
+## 🚀 Quick Start & Reproduction
 
-You can deploy an interactive live demo of this model to **Hugging Face Spaces** using the fine-tuned model weights hosted on Hugging Face Hub ([mrshibly/bangla-support-qwen3-8b](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)).
+### 1. Installation
+`ash
+git clone https://github.com/mrshibly/BanglaSupport-LLM.git
+cd BanglaSupport-LLM
+python -m venv venv
+# Windows: venv\Scripts\activate | Linux/macOS: source venv/bin/activate
+pip install -r requirements.txt
+`
 
-### 1. Create a New Hugging Face Space
-* Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-* Name your space (e.g., `bangla-support-demo`).
-* Select **Gradio** as the Space SDK.
+### 2. Full-Stack Local Serving (Windows / Linux)
+Ensure your system has 16GB VRAM (or a configured 16GB Virtual Memory Pagefile on Windows) to host the 7B model locally.
+`ash
+# Terminal 1: Launch FastAPI Backend
+uvicorn inference.api.main:app --reload --port 8000
 
-### 2. Add Code & Dependencies
-* Copy [hf_space_app.py](file:///c:/Users/mrshibly/Desktop/Project/bangla-support-llm/hf_space_app.py) to your Space as `app.py`.
-* Create `requirements.txt` with:
-  ```text
-  transformers>=4.44.0
-  peft>=0.12.0
-  torch
-  bitsandbytes>=0.43.0
-  accelerate>=0.33.0
-  gradio
-  ```
+# Terminal 2: Launch React Frontend
+cd app/frontend
+npm install
+npm run dev
+`
+Visit http://localhost:3000 to interact with the tri-modal support assistant.
 
 ---
 
-## 👨‍💻 Authors & Contributors
+## 👨‍💻 Primary Architects & Contributors
+
+This system was engineered end-to-end by:
 
 - **Mahmudur Rahman (mrshibly)**
+  - **Focus**: ML Pipeline, Model Fine-Tuning, Full-Stack Architecture, RAG implementation.
   - **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
   - **GitHub**: [@mrshibly](https://github.com/mrshibly)
   - **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
 
 - **FHJibon**
+  - **Focus**: Dataset curation, AI testing, and agentic intent design.
   - **GitHub**: [@FHJibon](https://github.com/FHJibon)
 
 ---
 
 ## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
+Distributed under the MIT License. See LICENSE for more information.
