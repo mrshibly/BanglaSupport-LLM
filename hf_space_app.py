@@ -1,14 +1,14 @@
 """
 Hugging Face Space App for BanglaSupport-LLM.
 
-Deploy directly to Hugging Face Spaces (Gradio SDK).
+Deploy directly to Hugging Face Spaces (Gradio SDK - Free CPU Basic).
 Uses the fine-tuned adapter uploaded to: mrshibly/bangla-support-qwen3-8b
 """
 
 import os
 import torch
 import gradio as gr
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
 BASE_MODEL_ID = "unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
@@ -19,20 +19,14 @@ SYSTEM_PROMPT = (
     "গ্রাহকদের প্রশ্নের উত্তর পেশাদার, বিনয়ী এবং সংক্ষিপ্তভাবে দাও।"
 )
 
-# Load model and tokenizer
+# Load model and tokenizer for CPU Basic
 print("Loading base model and Hugging Face adapter...")
 tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_ID)
 
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
-)
-
 base_model = AutoModelForCausalLM.from_pretrained(
     BASE_MODEL_ID,
-    quantization_config=bnb_config,
     device_map="auto",
+    low_cpu_mem_usage=True,
     trust_remote_code=True,
 )
 
