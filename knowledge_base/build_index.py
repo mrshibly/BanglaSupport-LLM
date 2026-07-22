@@ -11,16 +11,19 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-from rich.console import Console
+import sys
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
-console = Console()
+from rich.console import Console
+console = Console(force_terminal=False)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DOCS_DIR = PROJECT_ROOT / "knowledge_base" / "documents"
 DB_DIR = PROJECT_ROOT / "knowledge_base" / "embeddings"
 
 # Sample Bangla e-commerce FAQs/policies to populate knowledge base
-SAMPLE_POLICIES = """# দারাজ/ই-কমার্স পলিসি গাইডলাইন
+SAMPLE_POLICIES = """# ই-কমার্স পলিসি গাইডলাইন
 
 ## ১. রিটার্ন পলিসি
 পণ্য গ্রহণের পর ৭ দিনের মধ্যে রিটার্ন রিকোয়েস্ট করতে হবে। পণ্যটি অব্যবহৃত এবং মূল প্যাকেজিং সহ থাকতে হবে। ভুল বা ক্ষতিগ্রস্ত পণ্য পেলে বিনামূল্যে রিটার্ন প্রযোজ্য।
