@@ -6,7 +6,7 @@
 [![Fine-Tuning](https://img.shields.io/badge/FineTuning-Unsloth%20QLoRA%20bfloat16-green.svg)](https://github.com/unslothai/unsloth)
 [![RAG](https://img.shields.io/badge/RAG-ChromaDB%20%2B%20MiniLM-orange.svg)](https://github.com/chroma-core/chroma)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Author](https://img.shields.io/badge/Author-Mahmudur%20Rahman%20(mrshibly)-brightgreen.svg)](mailto:mahmudurrahman858@gmail.com)
+[![Authors](https://img.shields.io/badge/Authors-mrshibly%20%26%20FHJibon-brightgreen.svg)](https://github.com/mrshibly/BanglaSupport-LLM)
 
 A production-grade, end-to-end Large Language Model project demonstrating **dataset engineering, Unsloth QLoRA fine-tuning, automated & LLM-as-a-Judge evaluation, RAG retrieval comparison, agentic tool-calling, and full-stack deployment** for Bangla e-commerce customer support.
 
@@ -252,12 +252,15 @@ You can deploy an interactive live demo of this model to **Hugging Face Spaces**
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors & Contributors
 
-**Mahmudur Rahman (mrshibly)**
-- **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
-- **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
-- **GitHub**: [@mrshibly](https://github.com/mrshibly)
+- **Mahmudur Rahman (mrshibly)**
+  - **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
+  - **GitHub**: [@mrshibly](https://github.com/mrshibly)
+  - **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
+
+- **FHJibon**
+  - **GitHub**: [@FHJibon](https://github.com/FHJibon)
 
 ---
 
