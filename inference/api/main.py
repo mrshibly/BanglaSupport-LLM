@@ -47,7 +47,7 @@ MODEL_LOADED = False
 model = None
 tokenizer = None
 
-async def load_model_background():
+def load_model_sync():
     global MODEL_LOADED, model, tokenizer
     adapter_path = Path(__file__).resolve().parent.parent.parent / "checkpoints" / "qwen3-8b-bangla-support" / "final_adapter"
     hf_adapter_id = "mrshibly/bangla-support-qwen3-8b"
@@ -64,15 +64,17 @@ async def load_model_background():
         print("Loading Fine-Tuned Model for Production API via Unsloth...")
         print("==================================================")
 
-        model, tokenizer = FastLanguageModel.from_pretrained(
+        m, t = FastLanguageModel.from_pretrained(
             model_name=base_model_id,
             max_seq_length=2048,
             load_in_4bit=True,
         )
 
         target_adapter = str(adapter_path) if adapter_path.exists() else hf_adapter_id
-        model.load_adapter(target_adapter)
-        FastLanguageModel.for_inference(model)
+        m.load_adapter(target_adapter)
+        FastLanguageModel.for_inference(m)
+        model = m
+        tokenizer = t
         MODEL_LOADED = True
         print(f"✓ Fine-tuned model ({target_adapter}) loaded successfully onto GPU.")
     except Exception as e:
@@ -81,7 +83,7 @@ async def load_model_background():
 @app.on_event("startup")
 async def startup_event():
     print("=== Production API Server initialized on http://127.0.0.1:8000 ===")
-    asyncio.create_task(load_model_background())
+    asyncio.create_task(asyncio.to_thread(load_model_sync))
 
 @app.get("/health")
 def health():
@@ -128,8 +130,26 @@ async def chat(req: ChatRequest):
         input_ids = tokenizer.apply_chat_template(
             messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
         ).to(model.device)
-        outputs = model.generate(input_ids=input_ids, max_new_tokens=256, temperature=0.7)
+        eos_ids = [tokenizer.eos_token_id]
+        if hasattr(tokenizer, "convert_tokens_to_ids"):
+            im_end_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
+            if im_end_id is not None and isinstance(im_end_id, int):
+                eos_ids.append(im_end_id)
+
+        outputs = model.generate(
+            input_ids=input_ids,
+            max_new_tokens=256,
+            temperature=0.7,
+            do_sample=True,
+            eos_token_id=eos_ids,
+            pad_token_id=tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id
+        )
         reply = tokenizer.decode(outputs[0][input_ids.shape[1]:], skip_special_tokens=True).strip()
+        # Truncate any trailing user turn artifacts if present
+        if "\nuser" in reply:
+            reply = reply.split("\nuser")[0].strip()
+        if "user\n" in reply:
+            reply = reply.split("user\n")[0].strip()
     else:
         # High quality response formatting for RAG policy retrieval & fallback verification
         if req.mode == "rag" and retrieved_context:
