@@ -1,44 +1,23 @@
-# BanglaSupport-LLM: Tri-Modal Generative, RAG & Agentic Architecture for Low-Resource E-Commerce
+# BanglaSupport-LLM
 
-[![HuggingFace Model](https://img.shields.io/badge/HuggingFace-Model%20Hub-yellow.svg)](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)
-[![HuggingFace Space](https://img.shields.io/badge/HuggingFace-Live%20Demo%20Space-blue.svg)](https://huggingface.co/spaces/mrshibly/bangla-support-llm)
-[![Base Architecture](https://img.shields.io/badge/Model-Qwen2.5--7B--Instruct-blue.svg)](https://huggingface.co/unsloth/Qwen2.5-7B-Instruct-bnb-4bit)
-[![Fine-Tuning](https://img.shields.io/badge/FineTuning-Unsloth%20QLoRA%20bfloat16-green.svg)](https://github.com/unslothai/unsloth)
-[![RAG](https://img.shields.io/badge/RAG-ChromaDB%20%2B%20MiniLM-orange.svg)](https://github.com/chroma-core/chroma)
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Authors](https://img.shields.io/badge/Authors-mrshibly%20%26%20FHJibon-brightgreen.svg)](https://github.com/mrshibly/BanglaSupport-LLM)
-
-A production-grade, end-to-end AI engineering project demonstrating **dataset curation, Parameter-Efficient Fine-Tuning (QLoRA), Retrieval-Augmented Generation (RAG), Agentic Tool Execution, and Full-Stack System Design** tailored for Bangla NLP.
----
-
-## 🌟 Research & Engineering Highlights
-
-This project addresses the critical gap in **low-resource language adaptation** for modern LLMs. By combining efficient fine-tuning with a tri-modal serving architecture, we achieved state-of-the-art fluency and factual accuracy for Bangla customer support.
-
-- 🎯 **Domain-Specific Fine-Tuning**: Fine-tuned **Qwen2.5-7B-Instruct** using Unsloth QLoRA (4-bit quantization, `bfloat16` precision, $r=16, \alpha=32$) on an NVIDIA RTX 5060 Ti GPU to eliminate cross-lingual Hindi-bleeding and deliver natural, fluent Bangla customer support responses.
-- 🧹 **Native Bangla Dataset Pipeline**: Built a zero-cost instruction tuning pipeline filtered from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` with NFC Unicode normalization and MinHash LSH deduplication.
-- 📐 **Rigorous Evaluation Suite**: Multi-dimensional benchmark pipeline comparing base vs fine-tuned models across **BLEU**, **ROUGE-L**, **BERTScore** (`sagorsarker/bangla-bert-base`), and **LLM-as-a-Judge** scoring (Helpfulness, Fluency, Accuracy, Tone).
-- 🔍 **RAG Comparison System**: 3-tier comparative benchmark (Base + RAG vs. Fine-tuned vs. Fine-tuned + RAG) analyzing latency, hallucination rates, and token consumption.
-- ⚡ **Agentic Tool-Calling**: Integrated function-calling engine routing intent to mock SQLite order status and return eligibility APIs.
-- 🖥️ **Full-Stack UI & Serving**: FastAPI backend with Server-Sent Events (SSE streaming) paired with a responsive React + Vite chat interface designed with modern glassmorphism aesthetics and native Bangla typography (*Hind Siliguri*).
-- 🐳 **Containerized Deployment**: Multi-stage Docker Compose setup orchestrating API and Nginx web server.
+**BanglaSupport-LLM** built with **Unsloth (QLoRA)**, **FastAPI**, **ChromaDB**, and **React** that combines **fine-tuned LLMs**, **Retrieval-Augmented Generation**, **conversation memory**, and **agentic tool calling** into a single modular pipeline for Bangla e-commerce customer support.
 
 ---
 
-## 🛠️ Tech Stack
+# Features
 
-| Domain | Technologies |
-|---|---|
-| **Base Model & Training** | Qwen2.5-7B / Qwen3-8B, Unsloth FastLanguageModel, PyTorch 2.11.0+cu128 (`bf16`), PEFT, bitsandbytes |
-| **Dataset & NLP** | Datasets, Datasketch (MinHash LSH), unicodedata2, NLTK, ROUGE, BERTScore |
-| **RAG & Vector Search** | ChromaDB, LangChain, Sentence-Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) |
-| **Inference Backend** | FastAPI, SSE-Starlette, Pydantic, SQLite (Mock Order DB), Uvicorn |
-| **Frontend UI** | React 18, Vite, Lucide Icons, Vanilla CSS (Glassmorphism & Responsive Design) |
-| **DevOps & Tools** | Docker, Docker Compose, Git, Weights & Biases |
+1. Domain-specific instruction fine-tuning on Qwen2.5-7B/Qwen3-8B using Unsloth QLoRA (4-bit NF4)
+2. Custom Bangla dataset pipeline with NFC Unicode normalization and MinHash LSH deduplication
+3. Multi-tier comparative evaluation comparing BLEU-4, ROUGE-L, BERTScore, and LLM-as-a-Judge metrics
+4. Document-grounded RAG comparing base vs. fine-tuned vs. fine-tuned + RAG latency and hallucination rates
+5. Agentic tool-calling to resolve customer query intents (such as SQLite order status lookup)
+6. Streamed responses using Server-Sent Events (SSE) from a FastAPI backend
+7. Modern responsive glassmorphic React chat UI with native Bangla typography (*Hind Siliguri*)
+8. Production-grade containerized deployment with multi-stage Docker Compose
 
 ---
 
-## 📐 System Architecture & Diagrams
+# System Architecture
 
 ### 1. End-to-End ML Pipeline Architecture
 
@@ -71,6 +50,8 @@ flowchart TD
     end
 ```
 
+---
+
 ### 2. RAG vs Fine-Tuning Comparison Architecture
 
 ```mermaid
@@ -89,6 +70,8 @@ graph LR
     FTModel --> EvalComp
     FTRAG --> EvalComp
 ```
+
+---
 
 ### 3. Agentic Tool Calling Workflow
 
@@ -112,108 +95,189 @@ sequenceDiagram
 
 ---
 
-## 📂 Project Architecture
+# Implementation Details
 
-```
-BanglaSupport-LLM/
-├── dataset/
-│   ├── scripts/
-│   │   ├── download_and_filter.py   # Filters 342K Bangla-Instruct into 12 intent categories
-│   │   ├── download_aya.py           # Extracts human-curated Bengali subset from Aya
-│   │   ├── prepare_dataset.py        # NFC normalization, length filtering, MD5 dedup
-│   │   └── split_data.py             # Stratified 85/10/5 split (train, val, test)
-│   ├── processed/
-│   └── splits/
-├── training/
-│   ├── configs/
-│   │   └── qlora_qwen3_8b.yaml       # Hyperparameters & QLoRA config
-│   ├── train.py                      # Unsloth + SFTTrainer with Bangla prompt
-│   └── merge_adapter.py              # LoRA adapter merge to safetensors & GGUF
-├── evaluation/
-│   ├── eval_auto.py                  # BLEU, ROUGE-L, BERTScore runner
-│   ├── eval_llm_judge.py             # LLM-as-a-Judge (Helpfulness, Fluency, Accuracy, Tone)
-│   └── results/
-├── knowledge_base/
-│   ├── build_index.py                # Chunks Bangla policy MDs -> ChromaDB vector store
-│   └── documents/
-├── inference/
-│   └── api/
-│       ├── main.py                   # FastAPI app with SSE streaming & mode routes
-│       ├── rag.py                    # RAG retriever pipeline
-│       ├── tools.py                  # Agentic tool-calling & SQLite DB
-│       └── schemas.py                # Pydantic schemas
-├── tests/
-│   └── test_inference.py             # Inference test runner
-├── hf_space_app.py                   # Gradio web app for Hugging Face Spaces
-├── app/
-│   └── frontend/                     # Modern React + Vite chat application
-├── docker/
-│   ├── Dockerfile.api
-│   ├── Dockerfile.frontend
-│   └── docker-compose.yml
-├── README.md
-├── requirements.txt
-└── pyproject.toml
+## Dataset & Training Pipeline
+
+The dataset and model training pipeline performs the following steps:
+
+1. Filter instruction-tuning pairs from `md-nishat-008/Bangla-Instruct` (ACL 2025) and `CohereForAI/aya_dataset` into 12 intent categories
+2. Perform NFC Unicode normalization and deduplicate using MinHash LSH (Locality-Sensitive Hashing)
+3. Split data into training, validation, and testing sets (85/10/5 split)
+4. Train the base model using Unsloth QLoRA (4-bit NF4 quantization, $r=16, \alpha=32$, `bfloat16` precision)
+5. Merge the LoRA adapter to standard Safetensors and GGUF format for CPU/GPU inference
+
+---
+
+## Retrieval Approach
+
+For every retrieval request in RAG mode:
+
+1. Chunk policy Markdown documents and generate embeddings using `paraphrase-multilingual-MiniLM-L12-v2`
+2. Index the embeddings into a local ChromaDB vector store
+3. Perform semantic search for the user's query against ChromaDB
+4. Retrieve the most relevant policy text snippets and inject them as context into the prompt template
+
+This ensures the model answers according to official store policies and minimizes domain-specific hallucinations.
+
+---
+
+## Agentic Tool-Calling Strategy
+
+The backend includes a functional routing engine to determine intent:
+
+1. Extract order details (e.g. order ID) or query parameters from user inputs
+2. Execute target tools against mock SQLite database (using functions like `get_order_status` or `refund_eligibility`)
+3. Pass retrieved status data back to the fine-tuned LLM
+4. Generate the final natural-language response streamed in real-time to the client
+
+---
+
+## Prompt Design
+
+Different system prompts/templates are used depending on the active mode:
+
+### Direct LLM Prompt
+Employs a baseline customer support persona instruction in Bangla to answer queries directly without external data.
+
+### RAG Prompt
+Forces the model to only use the retrieved context snippets from the policy documents and restrict answers to verified facts.
+
+### Agentic Prompt
+Commands the model to utilize structured database query tools whenever order or tracking lookups are requested.
+
+---
+
+# Tech Stack
+
+<div align="center">
+  <table width="80%" style="border-collapse: collapse; border: 1px solid #ccc;">
+    <thead>
+      <tr style="border-bottom: 2px solid #ccc;">
+        <th align="left" style="padding: 8px; border-right: 1px solid #ccc;">Component</th>
+        <th align="left" style="padding: 8px;">Technology</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Base Model</strong></td>
+        <td align="left" style="padding: 8px;">Qwen2.5-7B-Instruct / Qwen3-8B</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Training Optimization</strong></td>
+        <td align="left" style="padding: 8px;">Unsloth, QLoRA (4-bit NF4), PyTorch, PEFT</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>RAG Embeddings</strong></td>
+        <td align="left" style="padding: 8px;">Sentence-Transformers (<code>paraphrase-multilingual-MiniLM-L12-v2</code>)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Vector Store</strong></td>
+        <td align="left" style="padding: 8px;">ChromaDB</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Mock DB / Tools</strong></td>
+        <td align="left" style="padding: 8px;">SQLite</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Backend Server</strong></td>
+        <td align="left" style="padding: 8px;">FastAPI, Uvicorn, SSE-Starlette</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Frontend Client</strong></td>
+        <td align="left" style="padding: 8px;">React (Vite), Lucide Icons, Vanilla CSS (Glassmorphism)</td>
+      </tr>
+      <tr>
+        <td align="left" style="padding: 8px; border-right: 1px solid #ccc;"><strong>Containerization</strong></td>
+        <td align="left" style="padding: 8px;">Docker, Docker Compose</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+---
+
+# Setup Guide
+
+## Prerequisites
+
+1. Python 3.10+
+2. Node.js (for React frontend)
+3. Docker & Docker Compose (optional)
+4. GPU (optional, for Unsloth training)
+
+---
+
+## Clone The Repository
+
+```bash
+git clone https://github.com/FHJibon/BanglaSupport-LLM.git
+cd BanglaSupport-LLM
 ```
 
 ---
 
-## 🚀 Quick Start & Reproduction
+## Dataset Pipeline Preparation
 
-### 1. Installation
+Set up a virtual environment and prepare datasets:
 
 ```bash
-git clone https://github.com/mrshibly/BanglaSupport-LLM.git
-cd BanglaSupport-LLM
-
 python -m venv venv
+# Activate virtual environment
 # Windows: venv\Scripts\activate | Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
-```
 
-### 2. Dataset Pipeline
-
-```bash
+# Run prep scripts
 python dataset/scripts/download_and_filter.py
 python dataset/scripts/download_aya.py
 python dataset/scripts/prepare_dataset.py
 python dataset/scripts/split_data.py
 ```
 
-### 3. Model Fine-Tuning (QLoRA)
+---
+
+## Model Fine-Tuning & Merging
 
 ```bash
 # Smoke test (50 steps)
 python training/train.py --max_steps 50
 
-# Full training (~8-10 hrs on RTX 5060 Ti 16GB)
+# Full training
 python training/train.py
 
 # Merge adapter into full model
 python training/merge_adapter.py --adapter checkpoints/qwen3-8b-bangla-support/final_adapter
 ```
 
-### 4. Knowledge Base & RAG Indexing
+---
+
+## Knowledge Base Indexing
+
+Build the RAG document store index:
 
 ```bash
 python knowledge_base/build_index.py
 ```
 
-### 5. Run Local App (API + React UI)
+---
 
+## Run Locally (API + React UI)
+
+### Backend API:
 ```bash
-# Terminal 1: Backend
 uvicorn inference.api.main:app --reload --port 8000
+```
 
-# Terminal 2: Frontend
+### Frontend UI:
+```bash
 cd app/frontend
 npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` to interact with the Bangla Support Assistant.
+---
 
-### 6. Docker Deployment
+## Run with Docker
 
 ```bash
 docker-compose -f docker/docker-compose.yml up --build
@@ -221,7 +285,74 @@ docker-compose -f docker/docker-compose.yml up --build
 
 ---
 
-## 📊 Evaluation & Benchmarks
+# API Endpoints
+
+## Chat Endpoint
+
+### Send Message Stream
+
+`POST /chat`
+
+This endpoint:
+1. Receives the query and operating mode
+2. Performs RAG retrieval or executes database tools depending on selected `mode`
+3. Returns a Server-Sent Events (SSE) stream of token responses
+
+#### Example Request:
+```json
+{
+  "message": "আমার অর্ডার BD1001 কোথায়?",
+  "mode": "agent"
+}
+```
+
+#### Example Response (SSE Stream chunks containing):
+```json
+{
+  "response": "আপনার অর্ডারটি বর্তমানে ডেলিভারি সেন্টারে রয়েছে এবং ২০২৬-০৭-২১ তারিখের মধ্যে ডেলিভারি করা হবে।",
+  "mode": "agent",
+  "tool_called": "get_order_status",
+  "tool_args": {"order_id": "BD1001"}
+}
+```
+
+---
+
+#### Example Conversations
+
+#### Direct LLM Conversation:
+User:
+```
+আসসালামু আলাইকুম
+```
+Assistant:
+```
+ওয়া আলাইকুম আসসালাম! বাংলা ই-কমার্স গ্রাহক সহায়তায় আপনাকে স্বাগতম। আমি কিভাবে সাহায্য করতে পারি?
+```
+
+#### RAG Policy Inquiry:
+User:
+```
+ডেলিভারি রিফান্ড পলিসি কী?
+```
+Assistant:
+```
+পণ্য হাতে পাওয়ার ৭ দিনের মধ্যে যেকোনো ত্রুটিপূর্ণ পণ্য সম্পূর্ণ রিফান্ড অথবা পরিবর্তনের জন্য আবেদন করা যাবে। (RAG রিট্রিভড তথ্য ব্যবহার করে)
+```
+
+#### Order Tracking Inquiry (Agentic Tool):
+User:
+```
+আমার অর্ডার BD1001 কোথায়?
+```
+Assistant:
+```
+আপনার অর্ডার BD1001 বর্তমানে ডেলিভারি সেন্টারে রয়েছে এবং এটি ২০২৬-০৭-২১ তারিখে পৌঁছাবে। (এক্সিকিউটেড টুল: get_order_status)
+```
+
+---
+
+# Evaluation & Benchmarks
 
 | Model Variant | BLEU-4 | ROUGE-L | BERTScore (F1) | LLM-Judge (Fluency) | LLM-Judge (Accuracy) |
 |---|:---:|:---:|:---:|:---:|:---:|
@@ -230,30 +361,18 @@ docker-compose -f docker/docker-compose.yml up --build
 
 ---
 
-## 🌐 Deploy to Hugging Face Spaces
+# Error Handling
 
-You can deploy an interactive live demo of this model to **Hugging Face Spaces** using the fine-tuned model weights hosted on Hugging Face Hub ([mrshibly/bangla-support-qwen3-8b](https://huggingface.co/mrshibly/bangla-support-qwen3-8b)).
-
-### 1. Create a New Hugging Face Space
-* Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-* Name your space (e.g., `bangla-support-demo`).
-* Select **Gradio** as the Space SDK.
-
-### 2. Add Code & Dependencies
-* Copy [hf_space_app.py](file:///c:/Users/mrshibly/Desktop/Project/bangla-support-llm/hf_space_app.py) to your Space as `app.py`.
-* Create `requirements.txt` with:
-  ```text
-  transformers>=4.44.0
-  peft>=0.12.0
-  torch
-  bitsandbytes>=0.43.0
-  accelerate>=0.33.0
-  gradio
-  ```
+The application gracefully handles:
+1. Incomplete/malformed prompt templates
+2. Empty context extraction from vector store (fallback message)
+3. Invalid or non-existent order IDs in SQLite lookup
+4. Missing training checkpoints or local databases
+5. Backend network timeout and disconnect exceptions
 
 ---
 
-## 👨‍💻 Primary Architects & Contributors
+# Team & Authors
 
 This system was engineered end-to-end by:
 
@@ -261,9 +380,8 @@ This system was engineered end-to-end by:
   - **Focus**: ML Pipeline, Model Fine-Tuning, Full-Stack Architecture, RAG implementation.
   - **Email**: [mahmudurrahman858@gmail.com](mailto:mahmudurrahman858@gmail.com)
   - **GitHub**: [@mrshibly](https://github.com/mrshibly)
-  - **Hugging Face**: [@mrshibly](https://huggingface.co/mrshibly)
 
-- **Ferdous Hasan**  
+- **Ferdous Hasan**
   - **Focus**: ML Pipeline, Model Fine-Tuning, Dataset curation, Evaluation.
   - **Email**: [ferdoushasanjibon25@gmail.com](mailto:ferdoushasanjibon25@gmail.com)
   - **GitHub**: [@FHJibon](https://github.com/FHJibon)
@@ -271,7 +389,6 @@ This system was engineered end-to-end by:
 
 ---
 
-## 📄 License
+# License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
